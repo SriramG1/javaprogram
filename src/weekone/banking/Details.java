@@ -1,6 +1,8 @@
 package weekone.banking;
 
-public class Details {
+import java.io.Serializable;
+
+public class Details implements Serializable {
     private String name;
     private String accountNumber;
     private String accountType;
