@@ -18,7 +18,7 @@ public class ExceptionHandling {
         catch (Exception exception){
             exception.printStackTrace();
         }
-        /*catch (RuntimeException exception){
+       /* catch (RuntimeException exception){
             exception.printStackTrace();
         }
         catch (ArithmeticException arithmeticException){
