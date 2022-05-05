@@ -1,5 +1,6 @@
 package weekone;
 
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class ExceptionHandling {
@@ -35,8 +36,8 @@ public class ExceptionHandling {
             int numberTwo = in.nextInt();
             System.out.println("Value of division : "+numberOne/numberTwo);
         }
-        catch (NumberFormatException numberFormatException){
-            numberFormatException.printStackTrace();
+        catch (InputMismatchException inputMismatchException){
+            inputMismatchException.printStackTrace();
         }
         catch (ArithmeticException arithmeticException){
             arithmeticException.printStackTrace();
