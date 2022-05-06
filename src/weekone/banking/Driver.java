@@ -9,7 +9,7 @@ public class Driver {
 
     private final Scanner in = new Scanner(System.in);
     private boolean exit=true;
-    private static final String PATH="C:\\Users\\sys\\Desktop\\Banking\\details.txt";
+    private static final String PATH="C:\\Users\\sys\\Desktop\\Banking\\banking.txt";
 
     @SuppressWarnings("unchecked")
     private boolean validAccountNumber(String accountNumber) {

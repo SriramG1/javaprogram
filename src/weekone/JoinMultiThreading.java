@@ -1,6 +1,6 @@
 package weekone;
 
-class ThreadOne  extends Thread{
+class FirstThread extends Thread{
 
     @Override
     public void run() {
@@ -11,7 +11,7 @@ class ThreadOne  extends Thread{
         }
     }
 }
-class ThreadTwo extends Thread{
+class SecondThread extends Thread{
 
     @Override
     public void run() {
@@ -22,8 +22,7 @@ class ThreadTwo extends Thread{
         }
     }
 }
-class ThreadThree extends Thread{
-
+public class JoinMultiThreading extends Thread{
     @Override
     public void run() {
         for(int i=1000;i<=2000;i++){
@@ -32,19 +31,19 @@ class ThreadThree extends Thread{
             }
         }
     }
-}
-public class PriorityMultiThreading {
-    public static void main(String[] args) {
-        Thread thread1 = new ThreadOne();
-        thread1.setPriority(Thread.MIN_PRIORITY);
+
+    public static void main(String[] args) throws InterruptedException {
+
+        Thread thread1 = new Thread(new FirstThread());
         thread1.setName("Thread One");
+        thread1.setPriority(1);
         thread1.start();
-        Thread thread2 = new ThreadTwo();
-        thread2.setPriority(Thread.MAX_PRIORITY);
+        thread1.join();
+        Thread thread2 = new Thread(new SecondThread());
         thread2.setName("Thread Two");
         thread2.start();
-        Thread thread3 = new ThreadThree();
-        thread3.setPriority(Thread.NORM_PRIORITY);
+        thread2.join();
+        Thread thread3 = new Thread(new JoinMultiThreading());
         thread3.setName("Thread Three");
         thread3.start();
     }
