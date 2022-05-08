@@ -1,6 +1,7 @@
-package weekone.banking;
+package weekone.bankingsystem;
 
 import com.google.gson.Gson;
+import weekone.banking.Details;
 
 import java.io.*;
 import java.util.*;
@@ -10,7 +11,6 @@ public class BankingSystem {
     private final Scanner in = new Scanner(System.in);
     private boolean exit=true;
     private static final String PATH="C:\\Users\\sys\\Desktop\\Banking\\bankingDetails.txt";
-
     private boolean validAccountNumber(String accountNumber) {
         if(accountNumber.length()!=6){
             return false;
@@ -20,11 +20,10 @@ public class BankingSystem {
                 return false;
             }
         }
-        FileReader fileReader = null;
+
         BufferedReader reader = null;
         try {
-            fileReader = new FileReader(PATH);
-            reader = new BufferedReader(fileReader);
+            reader = new BufferedReader(new FileReader(PATH));
             String str = reader.readLine();
             while (str != null) {
                 Details details = stringToJson(str);
@@ -40,9 +39,6 @@ public class BankingSystem {
         }
         finally {
             try {
-                if( fileReader != null) {
-                    fileReader.close();
-                }
                 if( reader != null) {
                     reader.close();
                 }
@@ -52,20 +48,32 @@ public class BankingSystem {
         }
         return true;
     }
-    private void readFile(String accountNumber){
-        FileReader fileReader = null;
+    private Details readFile(String accountNumber){
         BufferedReader bufferedReader = null;
+        Details details = null;
         try {
-            fileReader = new FileReader(PATH);
-            bufferedReader = new BufferedReader(fileReader);
+            bufferedReader = new BufferedReader(new FileReader(PATH));
             String str = bufferedReader.readLine();
             while (str != null) {
-                Details details = stringToJson(str);
+                details = stringToJson(str);
+                if(accountNumber.equals(details.getAccountNumber())){
+                    return details;
+                }
                 str = bufferedReader.readLine();
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+        finally {
+            try {
+                if (bufferedReader != null) {
+                    bufferedReader.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return details;
     }
     private Details stringToJson(String str){
         Gson gson = new Gson();
@@ -119,45 +127,113 @@ public class BankingSystem {
     private void valueToFile(Details details){
         Gson gson = new Gson();
         String json=gson.toJson(details);
-        FileWriter fileWriter = null;
-        BufferedWriter bufferedWriter = null;
-        PrintWriter printWriter = null;
-        try {
-            fileWriter = new FileWriter(PATH,true);
-            bufferedWriter = new BufferedWriter(fileWriter);
-            printWriter = new PrintWriter(bufferedWriter);
+        try (PrintWriter printWriter = new PrintWriter(new BufferedWriter(new FileWriter(PATH, true)))) {
             printWriter.print(json);
             printWriter.println();
             printWriter.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        finally {
-            try {
-                if (fileWriter != null) {
-                    fileWriter.close();
-                }
-                if (bufferedWriter != null) {
-                    bufferedWriter.close();
-                }
-                if (printWriter != null) {
-                    printWriter.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
     }
     private void register(){
         Details details = getInput();
         valueToFile(details);
     }
+    private String readFile(){
+        BufferedReader reader = null;
+        StringBuilder details= new StringBuilder();
+        try {
+            reader = new BufferedReader(new FileReader(PATH));
+            String currentLine = reader.readLine();
+            while (currentLine != null) {
+                details.append(currentLine).append("\n");
+                currentLine = reader.readLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        finally {
+            try {
+                if (reader != null) {
+                    reader.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return details.toString();
+    }
+    private String userString(String accountNumber){
+        Details details = readFile(accountNumber);
+        return new Gson().toJson(details);
+    }
+    private String replace(String user,int amount,int key){
+        Details details = stringToJson(user);
+        System.out.println(details.getBalance());
+        if(key == 1) {
+            details.setBalance(details.getBalance() + amount);
+        }
+        else {
+            if(details.getBalance()>=amount){
+                details.setBalance(details.getBalance() - amount);
+            }
+            else {
+                System.err.println("Invalid balance . . .");
+            }
+        }
+        return new Gson().toJson(details);
+    }
+    private String changeAmount(String details,String accountNumber,int amount,int key){
+        BufferedReader reader ;
+        try {
+            reader = new BufferedReader(new FileReader(PATH));
+            String currentLine = reader.readLine();
+            while (currentLine != null) {
+                String user = userString(accountNumber);
+                if (currentLine.equals(user)) {
+                    details = details.replace(user,replace(user,amount,key));
+                }
+                currentLine = reader.readLine();
+            }
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return details;
+    }
+    private void writeFile(String details){
+        try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(PATH)))) {
+            writer.write(details);
+            writer.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     private void transaction(int key){
         System.out.println("Enter Your account number : ");
-
+        String accountNumber=  in.next();
+        String details = readFile();
+        displayDetails(accountNumber);
+        if(key == 1) {
+            System.out.println("Enter your deposit amount : ");
+        }
+        else {
+            System.out.println("Enter your withdraw amount : ");
+        }
+        int amount = in.nextInt();
+        details = changeAmount(details,accountNumber,amount,key);
+        writeFile(details);
+        displayDetails(accountNumber);
     }
     private void displayDetails(String accountNumber){
-
+        Details details = readFile(accountNumber);
+        if(details != null) {
+            System.out.println("\n-----Your details showing below-----");
+            System.out.println("Name            ->  "+details.getName());
+            System.out.println("Account Number  ->  "+details.getAccountNumber());
+            System.out.println("Type of account ->  "+details.getAccountType());
+            System.out.println("Balance         ->  "+details.getBalance()+"\n");
+        }
     }
     private void mainMenu() {
         System.out.println("""
@@ -173,7 +249,7 @@ public class BankingSystem {
             case '2' -> transaction(1);
             case '3' -> transaction(2);
             case '4' -> {
-                System.out.println("Enter Account Number : ");
+                System.out.println("Enter Your accountNumber : ");
                 String accountNumber = in.next();
                 displayDetails(accountNumber);
             }
