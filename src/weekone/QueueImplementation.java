@@ -42,7 +42,7 @@ public class QueueImplementation {
         queue.enqueue(20);
         queue.dequeue();
         queue.peek();
-        queue.poll();
+        System.out.println(queue.poll());
         queue.print();
     }
 }
