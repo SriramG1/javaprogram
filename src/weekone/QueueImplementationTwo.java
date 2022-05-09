@@ -1,4 +1,4 @@
-package weekone.banking;
+package weekone;
 
 import java.util.InputMismatchException;
 import java.util.LinkedList;

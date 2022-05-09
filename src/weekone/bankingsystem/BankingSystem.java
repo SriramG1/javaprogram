@@ -220,7 +220,15 @@ public class BankingSystem {
         else {
             System.out.println("Enter your withdraw amount : ");
         }
-        int amount = in.nextInt();
+        int amount;
+        try {
+            amount = in.nextInt();
+        }catch (InputMismatchException inputMismatchException){
+            System.out.println("Your amount is invalid");
+            transaction(key);
+            inputMismatchException.printStackTrace();
+            return;
+        }
         details = changeAmount(details,accountNumber,amount,key);
         writeFile(details);
         displayDetails(accountNumber);
